@@ -131,75 +131,131 @@ export const SettingScreen = () => {
     }, 2000);
   };
   return (
-    <FlatList
-      data={[]}
-      renderItem={() => <></>}
-      ListEmptyComponent={
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View
+        style={{
+          justifyContent: 'center',
+          paddingHorizontal: 10,
+          flex: 1,
+          backgroundColor: '#fff',
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            textAlign: 'center',
+            marginVertical: 10,
+          }}
+        >
+          Setting Device
+        </Text>
         <View
           style={{
-            justifyContent: 'center',
-            paddingHorizontal: 10,
             flex: 1,
-            backgroundColor: '#fff',
+            width: '100%',
+            alignSelf: 'center',
+            marginTop: 20,
+            alignItems: 'center',
+            backgroundColor: '#f9fafb',
+            paddingHorizontal: 10,
+            paddingVertical: 20,
+            borderRadius: 10,
+          }}
+        >
+          <TouchableOpacity
+            onPress={handlerScanDevice}
+            style={{
+              width: 200,
+              padding: 10,
+              backgroundColor: '#4f46e5',
+              marginBottom: 10,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              borderRadius: 10,
+            }}
+          >
+            {isScanning ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="bluetooth" size={20} color="white" />
+                <Text style={{ color: 'white', marginHorizontal: 5 }}>
+                  Scan Device
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <FlatList
+            style={{ width: '100%', maxHeight: 150, flex: 1 }}
+            nestedScrollEnabled={true}
+            ListEmptyComponent={
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ textAlign: 'center' }}>
+                  No device found yet. Click Scan to discover devices.
+                </Text>
+              </View>
+            }
+            data={devices}
+            keyExtractor={item => item?.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={handlerSelectDevice}
+                style={{
+                  width: '100%',
+                  padding: 10,
+                  backgroundColor: '#fff',
+                  marginBottom: 5,
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                  paddingVertical: 15,
+                }}
+              >
+                <Text style={{ color: '#4f46e5' }}>{item?.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            alignSelf: 'center',
+            marginTop: 20,
+            alignItems: 'center',
+            backgroundColor: '#f9fafb',
+            paddingHorizontal: 10,
+            paddingVertical: 20,
+            borderRadius: 10,
+            height: 200,
           }}
         >
           <Text
             style={{
-              fontSize: 20,
               fontWeight: 'bold',
-              textAlign: 'center',
-              marginVertical: 10,
+              fontSize: 16,
+              marginBottom: 15,
+              marginRight: 'auto',
             }}
           >
-            Setting Device
+            Connection Logs
           </Text>
-          <View
-            style={{
-              flex: 1,
-              width: '100%',
-              alignSelf: 'center',
-              marginTop: 20,
-              alignItems: 'center',
-              backgroundColor: '#f9fafb',
-              paddingHorizontal: 10,
-              paddingVertical: 20,
-              borderRadius: 10,
-            }}
-          >
-            <TouchableOpacity
-              onPress={handlerScanDevice}
-              style={{
-                width: 200,
-                padding: 10,
-                backgroundColor: '#4f46e5',
-                marginBottom: 10,
-                flexDirection: 'row',
-                justifyContent: 'center',
-                borderRadius: 10,
-              }}
-            >
-              {isScanning ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <Ionicons name="bluetooth" size={20} color="white" />
-                  <Text style={{ color: 'white', marginHorizontal: 5 }}>
-                    Scan Device
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
 
+          <View style={{ flex: 1, width: '100%' }}>
             <FlatList
-              style={{ width: '100%', height: 150, flex: 1 }}
+              nestedScrollEnabled={true}
+              style={{ width: '100%', flex: 1, maxHeight: 350 }}
               ListEmptyComponent={
                 <View style={{ alignItems: 'center' }}>
-                  <Text style={{ textAlign: 'center' }}>
-                    No device found yet. Click Scan to discover devices.
+                  <Text style={{ textAlign: 'left' }}>
+                    No logs available. Select a device to view connection
+                    history.
                   </Text>
                 </View>
               }
-              data={devices}
+              data={logs}
               keyExtractor={item => item?.id}
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -212,26 +268,39 @@ export const SettingScreen = () => {
                     borderRadius: 5,
                     paddingHorizontal: 10,
                     paddingVertical: 15,
+                    borderColor: '#e5e7eb',
+                    borderLeftWidth: 2,
+                    borderLeftColor: '#4f46e5',
+                    marginVertical: 5,
                   }}
                 >
-                  <Text style={{ color: '#4f46e5' }}>{item?.name}</Text>
+                  <Text style={{ color: '#4f46e5' }}>{item?.timestamp}</Text>
+                  <Text>{item?.message}</Text>
                 </TouchableOpacity>
               )}
             />
           </View>
+        </View>
 
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            alignSelf: 'center',
+            marginTop: 20,
+            alignItems: 'center',
+            backgroundColor: '#f9fafb',
+            paddingHorizontal: 10,
+            paddingVertical: 20,
+            borderRadius: 10,
+          }}
+        >
           <View
             style={{
-              flex: 1,
+              flexDirection: 'row',
               width: '100%',
-              alignSelf: 'center',
-              marginTop: 20,
+              justifyContent: 'space-between',
               alignItems: 'center',
-              backgroundColor: '#f9fafb',
-              paddingHorizontal: 10,
-              paddingVertical: 20,
-              borderRadius: 10,
-              height: 200,
             }}
           >
             <Text
@@ -242,347 +311,276 @@ export const SettingScreen = () => {
                 marginRight: 'auto',
               }}
             >
-              Connection Logs
+              Device Information
             </Text>
-
-            <View style={{ flex: 1, width: '100%' }}>
-              <FlatList
-                style={{ width: '100%' }}
-                ListEmptyComponent={
-                  <View style={{ alignItems: 'center' }}>
-                    <Text style={{ textAlign: 'left' }}>
-                      No logs available. Select a device to view connection
-                      history.
-                    </Text>
-                  </View>
-                }
-                data={logs}
-                keyExtractor={item => item?.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={handlerSelectDevice}
-                    style={{
-                      width: '100%',
-                      padding: 10,
-                      backgroundColor: '#fff',
-                      marginBottom: 5,
-                      borderRadius: 5,
-                      paddingHorizontal: 10,
-                      paddingVertical: 15,
-                      borderColor: '#e5e7eb',
-                      borderLeftWidth: 2,
-                      borderLeftColor: '#4f46e5',
-                      marginVertical: 5,
-                    }}
-                  >
-                    <Text style={{ color: '#4f46e5' }}>{item?.timestamp}</Text>
-                    <Text>{item?.message}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
+            <TouchableOpacity
+              onPress={handlerFetchInformationDevice}
+              style={{
+                padding: 10,
+                backgroundColor: '#4f46e5',
+                marginBottom: 10,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                borderRadius: 10,
+              }}
+            >
+              {isFetching ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Text style={{ color: '#fff', textAlign: 'center' }}>
+                    Fetch
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
 
-          <View
-            style={{
-              flex: 1,
-              width: '100%',
-              alignSelf: 'center',
-              marginTop: 20,
-              alignItems: 'center',
-              backgroundColor: '#f9fafb',
-              paddingHorizontal: 10,
-              paddingVertical: 20,
-              borderRadius: 10,
-            }}
-          >
+          <View style={{ width: '100%' }}>
             <View
               style={{
-                flexDirection: 'row',
-                width: '100%',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                marginVertical: 5,
+                padding: 10,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
               }}
             >
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: 16,
-                  marginBottom: 15,
-                  marginRight: 'auto',
-                }}
-              >
-                Device Information
+              <Text style={{ color: '#000' }}>Device ID</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.id}
               </Text>
-              <TouchableOpacity
-                onPress={handlerFetchInformationDevice}
-                style={{
-                  padding: 10,
-                  backgroundColor: '#4f46e5',
-                  marginBottom: 10,
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                }}
-              >
-                {isFetching ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <>
-                    <Text style={{ color: '#fff', textAlign: 'center' }}>
-                      Fetch
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
             </View>
 
-            <View style={{ width: '100%' }}>
-              <View
-                style={{
-                  marginVertical: 5,
-                  padding: 10,
-                  backgroundColor: '#fff',
-                  borderRadius: 5,
-                  elevation: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <Text style={{ color: '#000' }}>Device ID</Text>
-                <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                  {deviceInfo.id}
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  marginVertical: 5,
-                  padding: 10,
-                  backgroundColor: '#fff',
-                  borderRadius: 5,
-                  elevation: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <Text style={{ color: '#000' }}>Device Temperature</Text>
-                <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                  {deviceInfo.temperature} °C
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginVertical: 5,
-                  padding: 10,
-                  backgroundColor: '#fff',
-                  borderRadius: 5,
-                  elevation: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <Text style={{ color: '#000' }}>Firmware Version</Text>
-                <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                  {deviceInfo.firmware}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginVertical: 5,
-                  padding: 10,
-                  backgroundColor: '#fff',
-                  borderRadius: 5,
-                  elevation: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <Text style={{ color: '#000' }}>Current Mode</Text>
-                <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                  {deviceInfo.currentMode?.name}
-                </Text>
-              </View>
-              <View
-                style={{
-                  marginVertical: 5,
-                  padding: 10,
-                  backgroundColor: '#fff',
-                  borderRadius: 5,
-                  elevation: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <Text style={{ color: '#000' }}>Power</Text>
-                <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                  {deviceInfo.power} dBm
-                </Text>
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  marginVertical: 5,
-                  backgroundColor: '#fff',
-                  borderRadius: 5,
-                  elevation: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 1,
-                  },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <Text style={{ color: '#000' }}>Baud Rate</Text>
-                <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                  {deviceInfo.baud} bps
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View
-            style={{
-              flex: 1,
-              width: '100%',
-              alignSelf: 'center',
-              marginTop: 20,
-              alignItems: 'center',
-              backgroundColor: '#f9fafb',
-              paddingHorizontal: 10,
-              paddingVertical: 20,
-              borderRadius: 10,
-            }}
-          >
-            <Text
+            <View
               style={{
-                fontWeight: 'bold',
-                fontSize: 16,
-                marginBottom: 15,
-                marginRight: 'auto',
+                marginVertical: 5,
+                padding: 10,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
               }}
             >
-              Configuration Settings
-            </Text>
-
-            <View style={{ width: '100%' }}>
-              <View>
-                <Text style={{ marginBottom: 10 }}>Power(dbm)</Text>
-                <Picker
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#fff',
-                    elevation: 1,
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 4,
-                  }}
-                >
-                  {dbms.map(dbm => (
-                    <Picker.Item key={dbm} label={`${dbm} dBm`} value={dbm} />
-                  ))}
-                </Picker>
-              </View>
-
-              <View style={{ marginVertical: 10 }}>
-                <Text style={{ marginBottom: 10 }}>Mode</Text>
-                <Picker
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#fff',
-                    elevation: 1,
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 4,
-                  }}
-                >
-                  {modes.map(mode => (
-                    <Picker.Item
-                      key={mode.id}
-                      label={mode.name}
-                      value={mode.id}
-                    />
-                  ))}
-                </Picker>
-              </View>
-
-              <View>
-                <Text style={{ marginBottom: 10 }}>Baud Rate(bps)</Text>
-                <Picker
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#fff',
-                    elevation: 1,
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 4,
-                  }}
-                >
-                  {baudRates.map(baudRate => (
-                    <Picker.Item
-                      key={baudRate}
-                      label={`${baudRate} bps`}
-                      value={baudRate}
-                    />
-                  ))}
-                </Picker>
-              </View>
-
-              <TouchableOpacity
-                style={{
-                  width: '100%',
-                  padding: 10,
-                  backgroundColor: '#4f46e5',
-                  marginTop: 20,
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                }}
-                onPress={handlerConfiguration}
-              >
-                {isSaveConfiguration ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <>
-                    <Text style={{ color: '#fff', textAlign: 'center' }}>
-                      Save Configuration
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
+              <Text style={{ color: '#000' }}>Device Temperature</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.temperature} °C
+              </Text>
+            </View>
+            <View
+              style={{
+                marginVertical: 5,
+                padding: 10,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#000' }}>Firmware Version</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.firmware}
+              </Text>
+            </View>
+            <View
+              style={{
+                marginVertical: 5,
+                padding: 10,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#000' }}>Current Mode</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.currentMode?.name}
+              </Text>
+            </View>
+            <View
+              style={{
+                marginVertical: 5,
+                padding: 10,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#000' }}>Power</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.power} dBm
+              </Text>
+            </View>
+            <View
+              style={{
+                padding: 10,
+                marginVertical: 5,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#000' }}>Baud Rate</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.baud} bps
+              </Text>
             </View>
           </View>
         </View>
-      }
-    />
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            alignSelf: 'center',
+            marginTop: 20,
+            alignItems: 'center',
+            backgroundColor: '#f9fafb',
+            paddingHorizontal: 10,
+            paddingVertical: 20,
+            borderRadius: 10,
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 16,
+              marginBottom: 15,
+              marginRight: 'auto',
+            }}
+          >
+            Configuration Settings
+          </Text>
+
+          <View style={{ width: '100%' }}>
+            <View>
+              <Text style={{ marginBottom: 10 }}>Power(dbm)</Text>
+              <Picker
+                style={{
+                  width: '100%',
+                  backgroundColor: '#fff',
+                  elevation: 1,
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                }}
+              >
+                {dbms.map(dbm => (
+                  <Picker.Item key={dbm} label={`${dbm} dBm`} value={dbm} />
+                ))}
+              </Picker>
+            </View>
+
+            <View style={{ marginVertical: 10 }}>
+              <Text style={{ marginBottom: 10 }}>Mode</Text>
+              <Picker
+                style={{
+                  width: '100%',
+                  backgroundColor: '#fff',
+                  elevation: 1,
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                }}
+              >
+                {modes.map(mode => (
+                  <Picker.Item
+                    key={mode.id}
+                    label={mode.name}
+                    value={mode.id}
+                  />
+                ))}
+              </Picker>
+            </View>
+
+            <View>
+              <Text style={{ marginBottom: 10 }}>Baud Rate(bps)</Text>
+              <Picker
+                style={{
+                  width: '100%',
+                  backgroundColor: '#fff',
+                  elevation: 1,
+                  shadowOffset: {
+                    width: 0,
+                    height: 1,
+                  },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                }}
+              >
+                {baudRates.map(baudRate => (
+                  <Picker.Item
+                    key={baudRate}
+                    label={`${baudRate} bps`}
+                    value={baudRate}
+                  />
+                ))}
+              </Picker>
+            </View>
+
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                padding: 10,
+                backgroundColor: '#4f46e5',
+                marginTop: 20,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                borderRadius: 10,
+              }}
+              onPress={handlerConfiguration}
+            >
+              {isSaveConfiguration ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Text style={{ color: '#fff', textAlign: 'center' }}>
+                    Save Configuration
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
