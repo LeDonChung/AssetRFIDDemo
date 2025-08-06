@@ -11,6 +11,8 @@ import IconFeather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { DataTable } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 const dbms = [5, 10, 15, 20];
 const baudRates = [38400, 115200];
@@ -77,6 +79,8 @@ export const InventoryScreen = () => {
       name: 'RFID Reader #6',
     },
   ]);
+  const count = useSelector((state: RootState) => state.couter.value);
+  const dispatch = useDispatch();
   const handlerScan = () => {
     setIsScanning(true);
     setTimeout(() => {
@@ -136,7 +140,7 @@ export const InventoryScreen = () => {
               marginVertical: 10,
             }}
           >
-            Inventory
+            Inventory {count}
           </Text>
           <View
             style={{

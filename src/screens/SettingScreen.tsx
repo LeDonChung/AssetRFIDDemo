@@ -3,11 +3,25 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  PermissionsAndroid,
+  Platform,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
 import { Text, View } from 'react-native';
+import { BleManager, Device } from 'react-native-ble-plx';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Buffer } from 'buffer';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import { increment } from '../redux/slices/CouterSlice';
+if (typeof global.Buffer === 'undefined') global.Buffer = Buffer;
+const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+const regexTag = /^E2[0-9A-F]{22}$/;
+
+const manager = new BleManager();
+
 const dbms = [5, 10, 15, 20];
 const baudRates = [38400, 115200];
 const modes = [
@@ -49,58 +63,181 @@ export const SettingScreen = () => {
       timestamp: new Date().toLocaleTimeString(),
     },
   ]);
-  const [devices, setDevices] = useState<any[]>([
-    {
-      id: 'RFID-001',
-      name: 'RFID Reader #1',
-    },
-    {
-      id: 'RFID-002',
-      name: 'RFID Reader #2',
-    },
-    {
-      id: 'RFID-003',
-      name: 'RFID Reader #3',
-    },
-    {
-      id: 'RFID-004',
-      name: 'RFID Reader #4',
-    },
-    {
-      id: 'RFID-005',
-      name: 'RFID Reader #5',
-    },
-    {
-      id: 'RFID-006',
-      name: 'RFID Reader #6',
-    },
-  ]);
-  const handlerScanDevice = () => {
+  const [devices, setDevices] = useState<Device[]>([]);
+  const requestPermissions = async (): Promise<void> => {
+    if (Platform.OS === 'android') {
+      await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      ]);
+    }
+  };
+  const handlerScanDevice = async () => {
+    setDevices([]);
     setIsScanning(true);
+    await requestPermissions();
+    setLogs([
+      {
+        id: `log-${logs.length + 1}`,
+        message: 'Scanning for devices...',
+        timestamp: new Date().toLocaleTimeString(),
+      },
+      ...logs,
+    ]);
+
+    manager.startDeviceScan(null, null, (error, device) => {
+      if (error) {
+        setLogs([
+          {
+            id: `log-${logs.length + 1}`,
+            message: `Error scanning devices: ${error.message}`,
+            timestamp: new Date().toLocaleTimeString(),
+          },
+          ...logs,
+        ]);
+        setIsScanning(false);
+        return;
+      }
+
+      if (device) {
+        setDevices(prev => {
+          if (!prev.some(d => d.id === device.id)) {
+            return [...prev, device];
+          }
+          return prev;
+        });
+      }
+    });
+
     setTimeout(() => {
-      setIsScanning(false);
+      manager.stopDeviceScan();
       setLogs(prevLogs => [
         {
           id: `log-${prevLogs.length + 1}`,
-          message: 'Scan completed',
+          message: `Scan completed. Found ${devices.length} devices.`,
           timestamp: new Date().toLocaleTimeString(),
         },
         ...prevLogs,
       ]);
-    }, 2000);
+      setIsScanning(false);
+    }, 5000);
   };
 
-  const handlerSelectDevice = (device: any) => {
-    setSelectedDevice(device);
-    setIsConnected(true);
-    setLogs(prevLogs => [
-      {
-        id: `log-${prevLogs.length + 1}`,
-        message: `Connected to ${device.name}`,
-        timestamp: new Date().toLocaleTimeString(),
-      },
-      ...prevLogs,
-    ]);
+  const handlerSelectDevice = async (device: Device) => {
+    try {
+      setIsConnected(true);
+      setLogs(prevLogs => [
+        {
+          id: `log-${prevLogs.length + 1}`,
+          message: `Connected to ${device.name ?? 'Unknown Device'}`,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+        ...prevLogs,
+      ]);
+
+      const connected = await device.connect();
+      const updated = await connected.requestMTU(517);
+      await updated.discoverAllServicesAndCharacteristics();
+
+      const services = await updated.services();
+      const service = services.find(s => s.uuid.toLowerCase() === SERVICE_UUID);
+
+      if (!service) {
+        setLogs(prevLogs => [
+          {
+            id: `log-${prevLogs.length + 1}`,
+            message: '❌ Không tìm thấy service UUID',
+            timestamp: new Date().toLocaleTimeString(),
+          },
+          ...prevLogs,
+        ]);
+        return;
+      }
+      const characteristics = await service.characteristics();
+      const characteristic = characteristics.find(
+        c => c.uuid.toLowerCase() === CHARACTERISTIC_UUID,
+      );
+
+      if (!characteristic) {
+        setLogs(prevLogs => [
+          {
+            id: `log-${prevLogs.length + 1}`,
+            message: '❌ Không tìm thấy characteristic UUID',
+            timestamp: new Date().toLocaleTimeString(),
+          },
+          ...prevLogs,
+        ]);
+        return;
+      }
+
+      let buffer = '';
+
+      characteristic.monitor((error, characteristic) => {
+        if (error) {
+          console.error('❌ Lỗi khi nhận phản hồi:', error.message);
+          return;
+        }
+
+        if (characteristic?.value) {
+          const chunk = Buffer.from(characteristic.value, 'base64').toString();
+          console.log('Nhận mảnh:', chunk);
+          buffer += chunk;
+          console.log('Tổng hợp:', buffer);
+          if (buffer.trim().endsWith('}')) {
+            try {
+              const json = JSON.parse(buffer);
+              console.log('JSON hợp lệ:', json);
+              setLogs(prevLogs => [
+                {
+                  id: `log-${prevLogs.length + 1}`,
+                  message: `Phản hồi: ${json.cmd} - ${JSON.stringify(json)}`,
+                  timestamp: new Date().toLocaleTimeString(),
+                },
+                ...prevLogs,
+              ]);
+              buffer = '';
+              if (json.cmd === 'get_reader_identifier') {
+              } else if (json.cmd === 'cmd_get_firmware_version') {
+              } else if (json.cmd === 'cmd_get_output_power') {
+              } else if (json.cmd === 'cmd_get_reader_temperature') {
+              } else if (json.cmd === 'cmd_set_output_power') {
+              } else if (
+                json.cmd === 'cmd_customized_session_target_inventory_start'
+              ) {
+                if (json && Array.isArray(json.tags)) {
+                  console.log('📦 Nhận tag:', json.tags);
+
+                  if (json.tags.length > 0) {
+                    const validTags: string[] = json.tags
+                      .map((tag: string) => (regexTag.test(tag) ? tag : null))
+                      .filter(
+                        (tag: string | null): tag is string => tag !== null,
+                      );
+                    // TODO
+                  }
+                }
+              } else if (
+                json.cmd === 'cmd_customized_session_target_inventory_stop'
+              ) {
+                console.log('📦 Lệnh tùy chỉnh dừng:', json);
+              }
+            } catch (err) {
+              console.warn('⚠️ JSON lỗi, đang chờ thêm...');
+            }
+          }
+        }
+      });
+    } catch (error) {
+      setLogs(prevLogs => [
+        {
+          id: `log-${prevLogs.length + 1}`,
+          message: `Failed to connect to device: ${error.message}`,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+        ...prevLogs,
+      ]);
+    }
   };
   const handlerFetchInformationDevice = () => {
     setIsFetching(true);
@@ -130,6 +267,9 @@ export const SettingScreen = () => {
       ]);
     }, 2000);
   };
+
+  const count = useSelector((state: RootState) => state.couter.value);
+  const dispatch = useDispatch();
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
       <View
@@ -141,6 +281,7 @@ export const SettingScreen = () => {
         }}
       >
         <Text
+          onPress={() => dispatch(increment())}
           style={{
             fontSize: 20,
             fontWeight: 'bold',
@@ -148,7 +289,7 @@ export const SettingScreen = () => {
             marginVertical: 10,
           }}
         >
-          Setting Device
+          Setting Device {count}
         </Text>
         <View
           style={{
@@ -201,7 +342,7 @@ export const SettingScreen = () => {
             keyExtractor={item => item?.id}
             renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={handlerSelectDevice}
+                onPress={() => handlerSelectDevice(item)}
                 style={{
                   width: '100%',
                   padding: 10,
@@ -212,7 +353,9 @@ export const SettingScreen = () => {
                   paddingVertical: 15,
                 }}
               >
-                <Text style={{ color: '#4f46e5' }}>{item?.name}</Text>
+                <Text style={{ color: '#4f46e5' }}>
+                  {item?.name ?? 'Unknown Device'} - {item?.id}
+                </Text>
               </TouchableOpacity>
             )}
           />
