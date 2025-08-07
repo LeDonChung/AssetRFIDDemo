@@ -1,6 +1,5 @@
 import { Picker } from '@react-native-picker/picker';
 import { useState } from 'react';
-import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,7 +11,6 @@ import {
 import { Text, View } from 'react-native';
 import { BleManager, Device } from 'react-native-ble-plx';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import { Buffer } from 'buffer';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
@@ -470,37 +468,30 @@ export const SettingScreen = () => {
           />
         </View>
 
-                    <FlatList
-                        style={{ width: '100%', maxHeight: 150, flex: 1 }}
-                        nestedScrollEnabled={true}
-                        ListEmptyComponent={
-                            <View style={{ alignItems: 'center' }}>
-                                <Text style={{ textAlign: 'center' }}>
-                                    No device found yet. Click Scan to discover devices.
-                                </Text>
-                            </View>
-                        }
-                        data={devices}
-                        keyExtractor={item => item?.id}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                onPress={handlerSelectDevice}
-                                style={{
-                                    width: '100%',
-                                    padding: 10,
-                                    backgroundColor: '#fff',
-                                    marginBottom: 5,
-                                    borderRadius: 5,
-                                    paddingHorizontal: 10,
-                                    paddingVertical: 15,
-                                }}
-                            >
-                                <Text style={{ color: '#4f46e5' }}>{item?.name}</Text>
-                            </TouchableOpacity>
-                        )}
-                    />
-                </View>
-
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            alignSelf: 'center',
+            marginTop: 20,
+            alignItems: 'center',
+            backgroundColor: '#f9fafb',
+            paddingHorizontal: 10,
+            paddingVertical: 20,
+            borderRadius: 10,
+            height: 200,
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 16,
+              marginBottom: 15,
+              marginRight: 'auto',
+            }}
+          >
+            Connection Logs
+          </Text>
 
           <View style={{ flex: 1, width: '100%', height: '100%' }}>
             <FlatList
@@ -532,195 +523,89 @@ export const SettingScreen = () => {
                     marginVertical: 5,
                   }}
                 >
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            width: '100%',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Text
-                            style={{
-                                fontWeight: 'bold',
-                                fontSize: 16,
-                                marginBottom: 15,
-                                marginRight: 'auto',
-                            }}
-                        >
-                            Device Information
-                        </Text>
-                        <TouchableOpacity
-                            onPress={handlerFetchInformationDevice}
-                            style={{
-                                padding: 10,
-                                backgroundColor: '#4f46e5',
-                                marginBottom: 10,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                borderRadius: 10,
-                            }}
-                        >
-                            {isFetching ? (
-                                <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                                <>
-                                    <Text style={{ color: '#fff', textAlign: 'center' }}>
-                                        Fetch
-                                    </Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
-                    </View>
+                  <Text style={{ color: '#4f46e5' }}>{item?.timestamp}</Text>
+                  <Text>{item?.message}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
 
-                    <View style={{ width: '100%' }}>
-                        <View
-                            style={{
-                                marginVertical: 5,
-                                padding: 10,
-                                backgroundColor: '#fff',
-                                borderRadius: 5,
-                                elevation: 1,
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 1,
-                                },
-                                shadowOpacity: 0.2,
-                                shadowRadius: 4,
-                            }}
-                        >
-                            <Text style={{ color: '#000' }}>Device ID</Text>
-                            <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                                {deviceInfo.id}
-                            </Text>
-                        </View>
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            alignSelf: 'center',
+            marginTop: 20,
+            alignItems: 'center',
+            backgroundColor: '#f9fafb',
+            paddingHorizontal: 10,
+            paddingVertical: 20,
+            borderRadius: 10,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 16,
+                marginBottom: 15,
+                marginRight: 'auto',
+              }}
+            >
+              Device Information
+            </Text>
+            <TouchableOpacity
+              onPress={handlerFetchInformationDevice}
+              style={{
+                padding: 10,
+                backgroundColor: '#4f46e5',
+                marginBottom: 10,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                borderRadius: 10,
+              }}
+            >
+              {isFetching ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <Text style={{ color: '#fff', textAlign: 'center' }}>
+                    Fetch
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
 
-                        <View
-                            style={{
-                                marginVertical: 5,
-                                padding: 10,
-                                backgroundColor: '#fff',
-                                borderRadius: 5,
-                                elevation: 1,
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 1,
-                                },
-                                shadowOpacity: 0.2,
-                                shadowRadius: 4,
-                            }}
-                        >
-                            <Text style={{ color: '#000' }}>Device Temperature</Text>
-                            <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                                {deviceInfo.temperature} °C
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                marginVertical: 5,
-                                padding: 10,
-                                backgroundColor: '#fff',
-                                borderRadius: 5,
-                                elevation: 1,
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 1,
-                                },
-                                shadowOpacity: 0.2,
-                                shadowRadius: 4,
-                            }}
-                        >
-                            <Text style={{ color: '#000' }}>Firmware Version</Text>
-                            <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                                {deviceInfo.firmware}
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                marginVertical: 5,
-                                padding: 10,
-                                backgroundColor: '#fff',
-                                borderRadius: 5,
-                                elevation: 1,
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 1,
-                                },
-                                shadowOpacity: 0.2,
-                                shadowRadius: 4,
-                            }}
-                        >
-                            <Text style={{ color: '#000' }}>Current Mode</Text>
-                            <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                                {deviceInfo.currentMode?.name}
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                marginVertical: 5,
-                                padding: 10,
-                                backgroundColor: '#fff',
-                                borderRadius: 5,
-                                elevation: 1,
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 1,
-                                },
-                                shadowOpacity: 0.2,
-                                shadowRadius: 4,
-                            }}
-                        >
-                            <Text style={{ color: '#000' }}>Power</Text>
-                            <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                                {deviceInfo.power} dBm
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                padding: 10,
-                                marginVertical: 5,
-                                backgroundColor: '#fff',
-                                borderRadius: 5,
-                                elevation: 1,
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 1,
-                                },
-                                shadowOpacity: 0.2,
-                                shadowRadius: 4,
-                            }}
-                        >
-                            <Text style={{ color: '#000' }}>Baud Rate</Text>
-                            <Text style={{ color: '#000', fontWeight: 'bold' }}>
-                                {deviceInfo.baud} bps
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-                <View
-                    style={{
-                        flex: 1,
-                        width: '100%',
-                        alignSelf: 'center',
-                        marginTop: 20,
-                        alignItems: 'center',
-                        backgroundColor: '#f9fafb',
-                        paddingHorizontal: 10,
-                        paddingVertical: 20,
-                        borderRadius: 10,
-                    }}
-                >
-                    <Text
-                        style={{
-                            fontWeight: 'bold',
-                            fontSize: 16,
-                            marginBottom: 15,
-                            marginRight: 'auto',
-                        }}
-                    >
-                        Configuration Settings
-                    </Text>
-
+          <View style={{ width: '100%' }}>
+            <View
+              style={{
+                marginVertical: 5,
+                padding: 10,
+                backgroundColor: '#fff',
+                borderRadius: 5,
+                elevation: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+              }}
+            >
+              <Text style={{ color: '#000' }}>Device ID</Text>
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {deviceInfo.id}
+              </Text>
+            </View>
 
             <View
               style={{

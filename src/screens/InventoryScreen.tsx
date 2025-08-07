@@ -1,11 +1,10 @@
-/* eslint-disable react-native/no-inline-styles */
 import { Picker } from '@react-native-picker/picker';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    ScrollView,
-    TouchableOpacity,
+  ActivityIndicator,
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { Text, View } from 'react-native';
 import IconFeather from 'react-native-vector-icons/Feather';
@@ -54,9 +53,9 @@ export const InventoryScreen = () => {
       setIsScanning(false);
       setLogs(prevLogs => [
         {
-            id: 'log-1',
-            message: 'Device initialized',
-            timestamp: new Date().toLocaleTimeString(),
+          id: `log-${prevLogs.length + 1}`,
+          message: 'Scan completed',
+          timestamp: new Date().toLocaleTimeString(),
         },
         ...prevLogs,
       ]);
