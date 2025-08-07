@@ -11,6 +11,7 @@ import { SettingScreen } from '../screens/SettingScreen';
 import { InventoryScreen } from '../screens/InventoryScreen';
 import { IdentificationScreen } from '../screens/IdentificationScreen';
 import { AlertModeScreen } from '../screens/AlertModeScreen';
+import { DemoScreen } from '../screens/DemoScreen';
 
 const MyTabBar = ({ state, descriptors, navigation }) => {
   const { colors } = useTheme();
@@ -116,7 +117,7 @@ export const AppNavigation = () => {
         <Tab.Screen name="setting" component={SettingScreen} />
         <Tab.Screen name="inventory" component={InventoryScreen} />
         <Tab.Screen name="identification" component={IdentificationScreen} />
-        <Tab.Screen name="alertMode" component={AlertModeScreen} />
+        <Tab.Screen name="alertMode" component={DemoScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
